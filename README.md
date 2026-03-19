@@ -141,9 +141,9 @@ The `processed_products_with_images.csv` dataset contains product listings from 
 
 | Model Type | Modality   | Target Accuracy | Target F1-Score |
 |------------|------------|-----------------|-----------------|
-| MLP        | Multimodal | 85%             | 80%             |
 | MLP        | Text-only  | 85%             | 80%             |
 | MLP        | Image-only | 75%             | 70%             |
+| MLP        | Multimodal | 85%             | 80%             |
 
 ### Achieved Performance (Latest Notebook Run)
 
