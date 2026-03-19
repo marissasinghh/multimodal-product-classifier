@@ -1,0 +1,53 @@
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environments
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# Jupyter / notebooks
+.ipynb_checkpoints/
+
+# IDE/editor
+.vscode/
+.idea/
+
+# Data / artifacts (common in ML projects)
+data/
+datasets/
+outputs/
+artifacts/
+models/
+checkpoints/
+wandb/
+mlruns/
+*.onnx
+*.pt
+*.pth
+*.ckpt
+*.h5
+*.joblib
+*.pkl
+
+# Explicitly exclude these from GitHub
+README_og.md
+Preprocessing(optional).ipynb
