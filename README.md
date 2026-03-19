@@ -145,6 +145,14 @@ The `processed_products_with_images.csv` dataset contains product listings from 
 | MLP        | Text-only  | 85%             | 80%             |
 | MLP        | Image-only | 75%             | 70%             |
 
+### Achieved Performance (Latest Notebook Run)
+
+| Model Type | Modality   | Accuracy | Macro F1 |
+|------------|------------|----------|----------|
+| MLP        | Text-only  | 93%      | 88%      |
+| MLP        | Image-only | 84%      | 77%      |
+| MLP        | Multimodal | 89%      | 84%      |
+
 ### Output Artifacts
 
 - `results/multimodal_results.csv`: Predictions for combined embeddings
