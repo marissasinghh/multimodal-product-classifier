@@ -35,9 +35,9 @@ This project addresses the following:
   - Image-only model: at least 75% accuracy and 70% F1-score
 
 ### Technical Requirements
-- Extract image embeddings using pre-trained computer vision models (ConvNextV2, ResNet50)
+- Extract image embeddings using pre-trained computer vision models (ConvNextV2-tiny; ResNet50 and others supported)
 - Extract text embeddings using pre-trained language models (e.g., MiniLM-L6-v2)
-- Train and evaluate classical ML models (Random Forest, Logistic Regression)
+- Train and evaluate classical ML models (Random Forest, Logistic Regression, Decision Tree, XGBoost, LightGBM)
 - Train and evaluate MLP models for single-modality and multimodal fusion
 - Generate reproducible results with classification reports and confusion matrices
 
@@ -82,7 +82,7 @@ The `processed_products_with_images.csv` dataset contains product listings from 
 
 ### 1. Image Embedding Extraction (`src/vision_embeddings_tf.py`)
 
-- **Backbone models**: ConvNextV2 (Hugging Face) and ResNet50 (TensorFlow Keras)
+- **Backbone used**: ConvNextV2-tiny (Hugging Face)
 - **Input**: 224x224 RGB images, normalized to [0, 1]
 - **Output**: Fixed-size embedding vectors per image
 - **Models supported**: ResNet50, ResNet101, DenseNet121/169, InceptionV3, ConvNextV2, ViT, Swin Transformer
@@ -91,7 +91,7 @@ The `processed_products_with_images.csv` dataset contains product listings from 
 
 - **Primary model**: `sentence-transformers/all-MiniLM-L6-v2` (Hugging Face)
 - **Alternative**: OpenAI API (GPT class) for proprietary embeddings
-- **Input**: Product name and description
+- **Input**: Product description (`description` column)
 - **Output**: Fixed-size text embedding vectors
 
 ### 3. Embedding Fusion and Preprocessing (`src/utils.py`)
@@ -102,7 +102,7 @@ The `processed_products_with_images.csv` dataset contains product listings from 
 
 ### 4. Classical ML Classifiers (`src/classifiers_classic_ml.py`)
 
-- **Models**: Random Forest, Logistic Regression (minimum required)
+- **Models**: Random Forest, Logistic Regression, Decision Tree, XGBoost, LightGBM
 - **Modalities**: Image-only, text-only, and early-fusion (combined embeddings)
 - **Embedding visualization**: PCA and t-SNE (2D and 3D) for exploratory analysis
 
@@ -153,6 +153,14 @@ The `processed_products_with_images.csv` dataset contains product listings from 
 | MLP        | Image-only | 84%      | 77%      |
 | MLP        | Multimodal | 89%      | 84%      |
 
+Best classical ML model per feature set (same test split):
+
+| Model Type          | Modality   | Accuracy | Macro F1 |
+|---------------------|------------|----------|----------|
+| LightGBM            | Text-only  | 92%      | 85%      |
+| XGBoost / LightGBM  | Image-only | 59-60%   | 53%      |
+| XGBoost / Log. Reg. | Multimodal | 90-91%   | 84-85%   |
+
 ### Output Artifacts
 
 - `results/multimodal_results.csv`: Predictions for combined embeddings
@@ -173,8 +181,8 @@ The `processed_products_with_images.csv` dataset contains product listings from 
 ### Step 1: Clone the Repository
 
 ```bash
-git clone <your-repo-url>
-cd sprint4
+git clone https://github.com/marissasinghh/multimodal-product-classifier.git
+cd multimodal-product-classifier
 ```
 
 ### Step 2: Set Up Virtual Environment
@@ -229,13 +237,13 @@ data/
 jupyter notebook
 ```
 
-Open `AnyoneAI - Sprint Project 04.ipynb` and run cells in order:
+Open `multimodal_product_classifier.ipynb` and run cells in order:
 
 1. **EDA and Image Downloading** – Load data, download images if needed
-2. **Generating Image Embeddings** – Extract image features (ConvNextV2, ResNet50)
+2. **Generating Image Embeddings** – Extract image features (ConvNextV2-tiny)
 3. **Generating Text Embeddings** – Extract text features (MiniLM-L6-v2)
 4. **Merge Embeddings** – Combine image and text embeddings
-5. **Classical ML Training** – Train Random Forest and Logistic Regression
+5. **Classical ML Training** – Train Random Forest, Logistic Regression, Decision Tree, XGBoost, and LightGBM
 6. **MLP Training** – Train MLP for image-only, text-only, and multimodal
 
 ### Step 6: Run Tests
@@ -292,8 +300,8 @@ black --line-length=88 .
 │  │  (src/nlp_models.py)       │  │  (src/vision_embeddings_  │  │
 │  ├────────────────────────────┤  │   tf.py)                  │  │
 │  │  • MiniLM-L6-v2            │  ├──────────────────────────┤  │
-│  │  • BERT / GPT (optional)   │  │  • ConvNextV2             │  │
-│  └────────────────────────────┘  │  • ResNet50               │  │
+│  │  • BERT / GPT (optional)   │  │  • ConvNextV2-tiny        │  │
+│  └────────────────────────────┘  │  • ResNet50 (optional)    │  │
 │               │                  └──────────────────────────┘  │
 │               │                              │                  │
 └───────────────┼──────────────────────────────┼──────────────────┘
@@ -320,8 +328,8 @@ black --line-length=88 .
 │  │  (src/classifiers_      │  ├────────────────────────────┤   │
 │  │   classic_ml.py)        │  │  • Early fusion             │   │
 │  ├─────────────────────────┤  │  • BatchNorm, Dropout       │   │
-│  │  • Random Forest        │  │  • Early stopping           │   │
-│  │  • Logistic Regression  │  └────────────────────────────┘   │
+│  │  • RF, LR, Decision Tree│  │  • Early stopping           │   │
+│  │  • XGBoost, LightGBM    │  └────────────────────────────┘   │
 │  └─────────────────────────┘                                    │
 │                                                                 │
 │  Modalities: Image-only | Text-only | Combined                  │
@@ -342,7 +350,7 @@ black --line-length=88 .
 ### Pipeline Flow
 
 1. **Extract** – Load products and images from CSV and disk
-2. **Embed** – Generate image embeddings (ConvNextV2/ResNet50) and text embeddings (MiniLM)
+2. **Embed** – Generate image embeddings (ConvNextV2-tiny) and text embeddings (MiniLM)
 3. **Merge** – Combine embeddings into a single feature matrix
 4. **Train** – Fit classical ML and MLP models per modality
 5. **Evaluate** – Report accuracy, F1, confusion matrices, and save predictions
@@ -352,7 +360,7 @@ black --line-length=88 .
 ## Project Structure
 
 ```
-sprint4/
+multimodal-product-classifier/
 ├── data/                              # Data files (download separately)
 │   ├── processed_products_with_images.csv
 │   └── images/                        # Product images
@@ -367,13 +375,16 @@ sprint4/
 │   ├── vision_embeddings_tf.py        # Image embedding extraction
 │   ├── nlp_models.py                  # Text embedding extraction
 │   ├── utils.py                       # Preprocessing and train/test split
-│   ├── classifiers_classic_ml.py      # Random Forest, Logistic Regression
+│   ├── classifiers_classic_ml.py      # RF, LR, Decision Tree, XGBoost, LightGBM
 │   └── classifiers_mlp.py             # MLP classifier
 ├── tests/                             # Unit tests
-│   └── test_models.py
-├── AnyoneAI - Sprint Project 04.ipynb # Main notebook
+│   ├── test_classifiers_classic_ml.py
+│   ├── test_classifiers_mlp.py
+│   ├── test_nlp_models.py
+│   ├── test_utils.py
+│   └── test_vision_embeddings_tf.py
+├── multimodal_product_classifier.ipynb # Main notebook
 ├── README.md                          # This file
-├── README_og.md                       # Original project instructions
 ├── requirements.txt                   # Python dependencies
 └── Dockerfile                         # Optional container setup
 ```
@@ -386,6 +397,7 @@ sprint4/
 - **TensorFlow**: Image embedding backbones (ResNet50, ConvNextV2)
 - **Transformers (Hugging Face)**: ConvNextV2, ViT, MiniLM-L6-v2
 - **scikit-learn**: Classical ML models, preprocessing, metrics
+- **XGBoost / LightGBM**: Gradient-boosted classifiers
 - **Pandas**: Data manipulation
 - **NumPy**: Numerical operations
 - **Matplotlib / Seaborn / Plotly**: Visualizations
